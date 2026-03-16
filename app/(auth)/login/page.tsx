@@ -1,4 +1,3 @@
-// app/login/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -90,12 +89,7 @@ export default function LoginPage() {
             )}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="name@example.com"
-                {...register("email")}
-              />
+              <Input id="email" type="email" {...register("email")} />
               {errors.email && (
                 <p className="text-sm text-destructive">
                   {errors.email.message}
@@ -116,7 +110,7 @@ export default function LoginPage() {
             </Button>
           </form>
         </CardContent>
-        <CardFooter className="flex justify-center">
+        <CardFooter className="flex justify-center border-0 bg-transparent pt-2 pb-4">
           <Link
             href="/forgot-password"
             className="text-sm text-secondary hover:underline"
