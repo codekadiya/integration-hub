@@ -18,10 +18,6 @@ export default function DashboardPage() {
     return <div>Loading...</div>;
   }
 
-  if (!session) {
-    //redirect("/login");
-  }
-
   return (
     <div className="min-h-screen bg-muted/30">
       <Header />

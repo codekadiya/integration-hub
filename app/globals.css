@@ -1,20 +1,26 @@
 /* app/globals.css */
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @layer base {
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
-    --primary: 165 45% 14%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 182 82% 30%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 300 8% 84%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 39 84% 54%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 165 45% 14%; /* #14342B */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 182 82% 30%; /* #0F8B8D */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 300 8% 84%; /* #DAD2D8 */
+    --muted-foreground: 165 45% 14%;
+    --accent: 39 84% 54%; /* #EC9A29 */
     --accent-foreground: 165 45% 14%;
-    --destructive: 4 75% 38%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 4 75% 38%; /* #A8201A */
+    --destructive-foreground: 0 0% 100%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 165 45% 14%;
@@ -24,10 +30,9 @@
 
 @layer base {
   * {
-    border-color: var(--border);
+    @apply border-border;
   }
   body {
-    background-color: var(--background);
-    color: var(--foreground);
+    @apply bg-background text-foreground;
   }
 }
