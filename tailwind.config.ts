@@ -32,16 +32,16 @@ const config: Config = {
           DEFAULT: "#0F8B8D",
           foreground: "#FFFFFF",
         },
-        accent: {
-          DEFAULT: "#EC9A29",
-          foreground: "#14342B",
-        },
         destructive: {
           DEFAULT: "#A8201A",
           foreground: "#FFFFFF",
         },
         muted: {
           DEFAULT: "#DAD2D8",
+          foreground: "#14342B",
+        },
+        accent: {
+          DEFAULT: "#EC9A29",
           foreground: "#14342B",
         },
         popover: {
@@ -58,9 +58,23 @@ const config: Config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      keyframes: {
+        "accordion-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
+        },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+      },
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
+      },
     },
   },
-  plugins: [],
+  plugins: [require("tailwindcss-animate")],
 };
 
 export default config;

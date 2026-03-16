@@ -3,6 +3,7 @@
 
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ActiveConnectors } from "@/components/dashboard/ActiveConnectors";
 import { RecentLogs } from "@/components/dashboard/RecentLogs";
 import { SyncActivity } from "@/components/dashboard/SyncActivity";
@@ -18,7 +19,7 @@ export default function DashboardPage() {
   }
 
   if (!session) {
-    redirect("/login");
+    //redirect("/login");
   }
 
   return (
