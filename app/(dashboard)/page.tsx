@@ -8,7 +8,11 @@ import OperaStatus from "@/components/dashboard/opera-status";
 export default function DashboardPage() {
   return (
     <div className="space-y-8">
-      <DashboardHeader />
+      <DashboardHeader
+        title="Integration Hub"
+        subtitle="System Integration Overview"
+        filters={true}
+      />
 
       <div className="grid grid-cols-12 gap-6 mt-4 items-stretch">
         <div className="col-span-8">

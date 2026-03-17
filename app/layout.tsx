@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Poppins } from "next/font/google";
 import "./globals.css";
-import { Providers } from "@/components/providers";
 import { cn } from "@/lib/utils";
 
 const inter = Inter({
@@ -31,9 +30,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={cn(inter.variable, poppins.variable)}
     >
-      <body className="font-body">
-        <Providers>{children}</Providers>
-      </body>
+      <body className="font-body">{children}</body>
     </html>
   );
 }

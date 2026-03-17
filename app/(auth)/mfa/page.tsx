@@ -1,24 +1,18 @@
-// app/mfa/page.tsx
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AuthHeader } from "@/components/auth/auth-header";
 import { mfaSchema, type MFAInput } from "@/lib/validations/auth";
 import { useAuthStore } from "@/store/authStore";
-import { signIn } from "next-auth/react";
 
 export default function MFAPage() {
   const router = useRouter();
@@ -57,17 +51,12 @@ export default function MFAPage() {
         throw new Error("Invalid MFA code");
       }
 
-      // Complete sign in
-      const result = await signIn("credentials", {
+      // 🔥 Replace NextAuth with console log
+      console.log("MFA Verified:", {
         email,
-        password: "", // Password not needed here, MFA token is used
-        mfaCode: data.code,
-        redirect: false,
+        mfaToken,
+        code: data.code,
       });
-
-      if (result?.error) {
-        throw new Error(result.error);
-      }
 
       clearMFAData();
       router.push("/dashboard");
@@ -81,14 +70,8 @@ export default function MFAPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30">
       <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-2xl text-primary">
-            Two-Factor Authentication
-          </CardTitle>
-          <CardDescription>
-            Enter the verification code from your authenticator app
-          </CardDescription>
-        </CardHeader>
+        <AuthHeader />
+
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {error && (
@@ -96,12 +79,13 @@ export default function MFAPage() {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
+
             <div className="space-y-2">
               <Label htmlFor="code">Verification Code</Label>
               <Input
                 id="code"
                 type="text"
-                placeholder="000000"
+                required
                 maxLength={6}
                 {...register("code")}
               />
@@ -111,11 +95,21 @@ export default function MFAPage() {
                 </p>
               )}
             </div>
+
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Verifying..." : "Verify"}
             </Button>
           </form>
         </CardContent>
+
+        <CardFooter className="flex justify-center border-0 bg-transparent pt-2 pb-4">
+          <Link
+            href="/login"
+            className="text-sm text-secondary hover:underline"
+          >
+            Back to login
+          </Link>
+        </CardFooter>
       </Card>
     </div>
   );

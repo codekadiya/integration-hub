@@ -1,32 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AuthHeader } from "@/components/auth/auth-header";
 import { loginSchema, type LoginInput } from "@/lib/validations/auth";
-import { useAuthStore } from "@/store/authStore";
 
 export default function LoginPage() {
   const router = useRouter();
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
-  const setMFAData = useAuthStore((state) => state.setMFAData);
+
+  useEffect(() => {
+    const token = sessionStorage.getItem("token");
+
+    if (token) {
+      router.replace("/dashboard");
+    }
+  }, []);
 
   const {
     register,
@@ -41,27 +39,38 @@ export default function LoginPage() {
       setIsLoading(true);
       setError("");
 
-      const result = await signIn("credentials", {
-        email: data.email,
-        password: data.password,
-        redirect: false,
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: data.email,
+          password: data.password,
+        }),
       });
 
-      if (result?.error) {
+      const result = await res.json();
+
+      if (!res.ok || !result.success) {
         setError("Invalid email or password");
         return;
       }
 
-      // Check if MFA is required
-      const session = await fetch("/api/auth/session").then((res) =>
-        res.json(),
+      sessionStorage.setItem("access_token", result.access_token);
+      sessionStorage.setItem(
+        "user",
+        JSON.stringify({
+          username: result.username,
+          firstName: result.firstName,
+          lastName: result.lastName,
+          accountId: result.accountId,
+          accountName: result.accountName,
+          role: result.access_role,
+        }),
       );
-      if (session?.user?.requiresMFA) {
-        setMFAData(session.user.mfaToken, data.email);
-        router.push("/mfa");
-      } else {
-        router.push("/dashboard");
-      }
+
+      router.push("/dashboard");
     } catch (error) {
       setError("An error occurred. Please try again.");
     } finally {
@@ -72,14 +81,8 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30">
       <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl text-primary">
-            Integration Hub
-          </CardTitle>
-          <CardDescription>
-            Enter your credentials to access your account
-          </CardDescription>
-        </CardHeader>
+        <AuthHeader />
+
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {error && (
@@ -89,7 +92,7 @@ export default function LoginPage() {
             )}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" {...register("email")} />
+              <Input id="email" type="email" required {...register("email")} />
               {errors.email && (
                 <p className="text-sm text-destructive">
                   {errors.email.message}
@@ -98,7 +101,12 @@ export default function LoginPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" {...register("password")} />
+              <Input
+                id="password"
+                type="password"
+                required
+                {...register("password")}
+              />
               {errors.password && (
                 <p className="text-sm text-destructive">
                   {errors.password.message}

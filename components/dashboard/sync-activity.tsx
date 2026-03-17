@@ -22,7 +22,7 @@ export default function SyncActivity() {
         </span>
       }
     >
-      <div className="flex flex-col min-h-[280px] pt-1">
+      <div className="flex flex-col min-h-[360px] pt-1">
         {/* Subtitle */}
         <div className="text-xs text-slate-500 mb-6">
           Average daily syncs: <span className="font-medium">98% success</span>
