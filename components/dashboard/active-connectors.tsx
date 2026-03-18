@@ -124,7 +124,7 @@ export default function ActiveConnectors() {
             {/* Status */}
             <div>
               <span
-                className={`inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full font-medium ${statusStyles[c.status]}`}
+                className={`inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full font-medium ${statusStyles[c.status as keyof typeof statusStyles]}`}
               >
                 <span className="w-2 h-2 rounded-full bg-current opacity-70"></span>
                 {c.status.charAt(0).toUpperCase() + c.status.slice(1)}

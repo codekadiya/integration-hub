@@ -3,7 +3,7 @@ export default function SectionCard({
   action,
   children,
 }: {
-  title: string;
+  title: React.ReactNode;
   action?: React.ReactNode;
   children: React.ReactNode;
 }) {

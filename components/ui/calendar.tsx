@@ -91,7 +91,7 @@ function Calendar({
             : "flex items-center gap-1 rounded-(--cell-radius) text-sm [&>svg]:size-3.5 [&>svg]:text-muted-foreground",
           defaultClassNames.caption_label,
         ),
-        table: defaultClassNames.table,
+        month_grid: defaultClassNames.month_grid,
         weekdays: defaultClassNames.weekdays,
         weekday: defaultClassNames.weekday,
         week: defaultClassNames.week,
