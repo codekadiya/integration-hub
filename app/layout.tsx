@@ -15,8 +15,8 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "API for Hospitality",
-  description: "API for Hospitality",
+  title: "Stayware",
+  description: "Stayware",
 };
 
 export default function RootLayout({

@@ -10,7 +10,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     const token = sessionStorage.getItem("token");
 
     if (!token) {
-      router.replace("/login");
+      router.replace("/auth/login");
     }
   }, [router]);
 

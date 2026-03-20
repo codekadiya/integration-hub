@@ -7,7 +7,7 @@ export function AuthHeader() {
       <CardTitle className="flex items-center justify-center gap-3 mb-6 text-primary">
         <Image src="/logo.svg" alt="Logo" width={32} height={32} />
         <div className="text-[18px] font-semibold text-slate-900 whitespace-nowrap">
-          API for Hospitality
+          Stayware
         </div>
       </CardTitle>
       <CardDescription>

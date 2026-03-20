@@ -38,7 +38,7 @@ export default function TopNavbar() {
             />
 
             <div className="text-[15px] font-semibold text-slate-900 whitespace-nowrap">
-              API for Hospitality
+              Stayware
             </div>
           </div>
 

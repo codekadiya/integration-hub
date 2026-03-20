@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -11,53 +11,59 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AuthHeader } from "@/components/auth/auth-header";
-import { loginSchema, type LoginInput } from "@/lib/validations/auth";
+import { mfaSchema, type MFAInput } from "@/lib/validations/auth";
 
-export default function LoginPage() {
+export default function MFAPage() {
   const router = useRouter();
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const token = sessionStorage.getItem("token");
-
-    if (token) {
-      router.replace("/dashboard");
+    const username = sessionStorage.getItem("mfa_username");
+    const sessionId = sessionStorage.getItem("mfa_session_id");
+    if (!username || !sessionId) {
+      router.push("/auth/login");
+      return;
     }
-  }, []);
+  }, [router]);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginInput>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<MFAInput>({
+    resolver: zodResolver(mfaSchema),
   });
 
-  const onSubmit = async (data: LoginInput) => {
+  const onSubmit = async (data: MFAInput) => {
+    const username = sessionStorage.getItem("mfa_username");
+    const sessionId = sessionStorage.getItem("mfa_session_id");
+
     try {
       setIsLoading(true);
       setError("");
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/loginconfirm`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username,
+            session: sessionId,
+            code: data.code,
+          }),
         },
-        body: JSON.stringify({
-          username: data.email,
-          password: data.password,
-        }),
-      });
+      );
 
       const result = await res.json();
 
       if (!res.ok || !result.success) {
-        setError("Invalid email or password");
+        setError("Invalid MFA code");
         return;
       }
 
-      sessionStorage.setItem("access_token", result.access_token);
+      sessionStorage.setItem("token", result.access_token);
       sessionStorage.setItem(
         "user",
         JSON.stringify({
@@ -70,9 +76,12 @@ export default function LoginPage() {
         }),
       );
 
-      router.push("/dashboard");
-    } catch (error) {
-      setError("An error occurred. Please try again.");
+      sessionStorage.removeItem("mfa_username");
+      sessionStorage.removeItem("mfa_session_id");
+
+      router.push("/");
+    } catch {
+      setError("Invalid MFA code");
     } finally {
       setIsLoading(false);
     }
@@ -90,40 +99,35 @@ export default function LoginPage() {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
+
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" required {...register("email")} />
-              {errors.email && (
-                <p className="text-sm text-destructive">
-                  {errors.email.message}
-                </p>
-              )}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="code">Verification Code</Label>
               <Input
-                id="password"
-                type="password"
+                id="code"
+                type="text"
                 required
-                {...register("password")}
+                maxLength={6}
+                {...register("code")}
               />
-              {errors.password && (
+              {errors.code && (
                 <p className="text-sm text-destructive">
-                  {errors.password.message}
+                  {errors.code.message}
                 </p>
               )}
             </div>
+
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Signing in..." : "Sign In"}
+              {isLoading ? "Verifying..." : "Verify"}
             </Button>
           </form>
         </CardContent>
+
         <CardFooter className="flex justify-center border-0 bg-transparent pt-2 pb-4">
           <Link
-            href="/forgot-password"
+            href="/auth/login"
             className="text-sm text-secondary hover:underline"
           >
-            Forgot your password?
+            Back to login
           </Link>
         </CardFooter>
       </Card>

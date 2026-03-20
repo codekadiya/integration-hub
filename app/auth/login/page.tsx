@@ -11,46 +11,61 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AuthHeader } from "@/components/auth/auth-header";
-import {
-  forgotPasswordSchema,
-  type ForgotPasswordInput,
-} from "@/lib/validations/auth";
+import { loginSchema, type LoginInput } from "@/lib/validations/auth";
 
-export default function ForgotPasswordPage() {
+export default function LoginPage() {
   const router = useRouter();
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const token = sessionStorage.getItem("token");
 
+    sessionStorage.removeItem("mfa_username");
+    sessionStorage.removeItem("mfa_session_id");
+
     if (token) {
-      router.replace("/dashboard");
+      router.replace("/");
     }
-  }, []);
+  }, [router]);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<ForgotPasswordInput>({
-    resolver: zodResolver(forgotPasswordSchema),
+  } = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = async (data: ForgotPasswordInput) => {
+  const onSubmit = async (data: LoginInput) => {
     try {
       setIsLoading(true);
       setError("");
-      setSuccess("");
 
-      console.log("Forgot Password Request:", data);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userName: data.email,
+          password: data.password,
+        }),
+      });
 
-      setSuccess(
-        "If an account exists with this email, you will receive a password reset link.",
-      );
-    } catch (error) {
-      setError("An error occurred. Please try again.");
+      const result = await res.json();
+
+      if (!res.ok || !result.success) {
+        setError("Invalid email or password");
+        return;
+      }
+
+      sessionStorage.setItem("mfa_username", data.email);
+      sessionStorage.setItem("mfa_session_id", result.sessionId);
+
+      router.push("/auth/mfa");
+    } catch {
+      setError("Invalid email or password");
     } finally {
       setIsLoading(false);
     }
@@ -68,12 +83,6 @@ export default function ForgotPasswordPage() {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-            {success && (
-              <Alert variant="success">
-                <AlertDescription>{success}</AlertDescription>
-              </Alert>
-            )}
-
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input id="email" type="email" required {...register("email")} />
@@ -83,19 +92,31 @@ export default function ForgotPasswordPage() {
                 </p>
               )}
             </div>
-
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                required
+                {...register("password")}
+              />
+              {errors.password && (
+                <p className="text-sm text-destructive">
+                  {errors.password.message}
+                </p>
+              )}
+            </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Sending..." : "Send Reset Link"}
+              {isLoading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
         </CardContent>
-
         <CardFooter className="flex justify-center border-0 bg-transparent pt-2 pb-4">
           <Link
-            href="/login"
+            href="/auth/forgot-password"
             className="text-sm text-secondary hover:underline"
           >
-            Back to login
+            Forgot your password?
           </Link>
         </CardFooter>
       </Card>

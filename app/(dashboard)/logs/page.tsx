@@ -1,6 +1,6 @@
 import DashboardHeader from "@/components/dashboard/dashboard-header";
 
-export default function DashboardPage() {
+export default function LogsPage() {
   return (
     <div className="space-y-8">
       <DashboardHeader title="Logs" />

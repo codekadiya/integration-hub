@@ -15,8 +15,7 @@ export default function DashboardLayout({
         <footer className="border-t bg-white text-sm text-slate-500">
           <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between">
             <div>
-              © {new Date().getFullYear()} API for Hospitality. All rights
-              reserved.
+              © {new Date().getFullYear()} Stayware Inc. All rights reserved.
             </div>
 
             <div className="flex gap-6">

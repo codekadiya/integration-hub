@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -11,57 +11,46 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AuthHeader } from "@/components/auth/auth-header";
-import { mfaSchema, type MFAInput } from "@/lib/validations/auth";
-import { useAuthStore } from "@/store/authStore";
+import {
+  forgotPasswordSchema,
+  type ForgotPasswordInput,
+} from "@/lib/validations/auth";
 
-export default function MFAPage() {
+export default function ForgotPasswordPage() {
   const router = useRouter();
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { mfaToken, email, clearMFAData } = useAuthStore();
+
+  useEffect(() => {
+    const token = sessionStorage.getItem("token");
+
+    if (token) {
+      router.replace("/");
+    }
+  }, [router]);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<MFAInput>({
-    resolver: zodResolver(mfaSchema),
+  } = useForm<ForgotPasswordInput>({
+    resolver: zodResolver(forgotPasswordSchema),
   });
 
-  const onSubmit = async (data: MFAInput) => {
-    if (!mfaToken || !email) {
-      router.push("/login");
-      return;
-    }
-
+  const onSubmit = async (data: ForgotPasswordInput) => {
     try {
       setIsLoading(true);
       setError("");
+      setSuccess("");
 
-      const response = await fetch("/api/auth/verify-mfa", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          mfaToken,
-          code: data.code,
-        }),
-      });
+      console.log("Forgot Password Request:", data);
 
-      if (!response.ok) {
-        throw new Error("Invalid MFA code");
-      }
-
-      // 🔥 Replace NextAuth with console log
-      console.log("MFA Verified:", {
-        email,
-        mfaToken,
-        code: data.code,
-      });
-
-      clearMFAData();
-      router.push("/dashboard");
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "Invalid MFA code");
+      setSuccess(
+        "If an account exists with this email, you will receive a password reset link.",
+      );
+    } catch {
+      setError("An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -79,32 +68,31 @@ export default function MFAPage() {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
+            {success && (
+              <Alert variant="success">
+                <AlertDescription>{success}</AlertDescription>
+              </Alert>
+            )}
 
             <div className="space-y-2">
-              <Label htmlFor="code">Verification Code</Label>
-              <Input
-                id="code"
-                type="text"
-                required
-                maxLength={6}
-                {...register("code")}
-              />
-              {errors.code && (
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" type="email" required {...register("email")} />
+              {errors.email && (
                 <p className="text-sm text-destructive">
-                  {errors.code.message}
+                  {errors.email.message}
                 </p>
               )}
             </div>
 
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Verifying..." : "Verify"}
+              {isLoading ? "Sending..." : "Send Reset Link"}
             </Button>
           </form>
         </CardContent>
 
         <CardFooter className="flex justify-center border-0 bg-transparent pt-2 pb-4">
           <Link
-            href="/login"
+            href="/auth/login"
             className="text-sm text-secondary hover:underline"
           >
             Back to login
