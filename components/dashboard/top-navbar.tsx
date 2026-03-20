@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Bell, ChevronDown, Search, Settings } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
@@ -18,8 +19,20 @@ const user = {
 };
 
 export default function TopNavbar() {
+  const [token, setToken] = useState<string | null>(null);
+  const [isChecked, setIsChecked] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+
+  useEffect(() => {
+    const storedToken = sessionStorage.getItem("token");
+    setToken(storedToken);
+    setIsChecked(true);
+  }, []);
+
+  if (!isChecked) return null;
+
+  if (!token) return null;
 
   return (
     <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/90 backdrop-blur">

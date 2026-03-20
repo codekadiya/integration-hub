@@ -1,5 +1,5 @@
 import TopNavbar from "@/components/dashboard/top-navbar";
-import AuthGuard from "@/components/auth/auth-gaurd";
+import AuthGuard from "@/components/auth/auth-guard";
 import { CircleHelp } from "lucide-react";
 
 export default function DashboardLayout({
