@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Bell, ChevronDown, Search, Settings } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
@@ -21,6 +21,10 @@ const user = {
 export default function TopNavbar() {
   const [token, setToken] = useState<string | null>(null);
   const [isChecked, setIsChecked] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
   const router = useRouter();
   const pathname = usePathname();
 
@@ -30,13 +34,30 @@ export default function TopNavbar() {
     setIsChecked(true);
   }, []);
 
-  if (!isChecked) return null;
+  // Handle outside click
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    }
 
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  if (!isChecked) return null;
   if (!token) return null;
 
   return (
     <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/90 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+        {/* LEFT */}
         <div className="flex items-center gap-10">
           <div
             className="flex cursor-pointer items-center gap-3 whitespace-nowrap"
@@ -49,7 +70,6 @@ export default function TopNavbar() {
               height={32}
               className="rounded-xl"
             />
-
             <div className="text-[15px] font-semibold text-slate-900 whitespace-nowrap">
               Stayware
             </div>
@@ -76,7 +96,9 @@ export default function TopNavbar() {
           </nav>
         </div>
 
+        {/* RIGHT */}
         <div className="flex items-center gap-10">
+          {/* Search */}
           <div className="relative hidden md:block">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
@@ -85,6 +107,7 @@ export default function TopNavbar() {
             />
           </div>
 
+          {/* Icons + User */}
           <div className="flex items-center gap-1">
             <button className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 hover:text-slate-900">
               <Bell className="h-4 w-4" />
@@ -96,24 +119,44 @@ export default function TopNavbar() {
 
             <div className="mx-1 h-6 w-px bg-slate-200"></div>
 
-            <button className="flex items-center gap-3 rounded-full border border-slate-200 bg-white px-2 py-1.5 whitespace-nowrap">
-              <Image
-                src={user.avatar}
-                alt={user.fullName}
-                width={32}
-                height={32}
-                className="rounded-full"
-              />
+            {/* USER DROPDOWN */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setIsOpen((prev) => !prev)}
+                className="flex items-center gap-3 rounded-md border border-slate-200 bg-white px-2 py-1.5 whitespace-nowrap"
+              >
+                <Image
+                  src={user.avatar}
+                  alt={user.fullName}
+                  width={32}
+                  height={32}
+                  className="rounded-full"
+                />
 
-              <div className="hidden text-left md:block">
-                <div className="text-sm font-medium leading-none text-slate-900">
-                  {user.fullName}
+                <div className="hidden text-left md:block">
+                  <div className="text-sm font-medium leading-none text-slate-900">
+                    {user.fullName}
+                  </div>
+                  <div className="mt-1 text-xs text-slate-500">{user.role}</div>
                 </div>
-                <div className="mt-1 text-xs text-slate-500">{user.role}</div>
-              </div>
 
-              <ChevronDown className="h-4 w-4 text-slate-400" />
-            </button>
+                <ChevronDown className="h-4 w-4 text-slate-400" />
+              </button>
+
+              {isOpen && (
+                <div className="absolute right-0 mt-2 w-44 rounded-xl border border-slate-200 bg-white shadow-lg p-1">
+                  <button
+                    onClick={() => {
+                      setIsOpen(false);
+                      router.push("/auth/logout");
+                    }}
+                    className="w-full rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100"
+                  >
+                    Sign out
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

@@ -74,7 +74,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30">
       <Card className="w-full max-w-md">
-        <AuthHeader />
+        <AuthHeader description="Enter your credentials to continue" />
 
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

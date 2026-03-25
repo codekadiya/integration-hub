@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-export function AuthHeader() {
+export function AuthHeader({ description }: { description: string }) {
   return (
     <CardHeader className="space-y-1">
       <CardTitle className="flex items-center justify-center gap-3 mb-6 text-primary">
@@ -10,9 +10,7 @@ export function AuthHeader() {
           Stayware
         </div>
       </CardTitle>
-      <CardDescription>
-        Enter the verification code from your authenticator app
-      </CardDescription>
+      <CardDescription>{description}</CardDescription>
     </CardHeader>
   );
 }
